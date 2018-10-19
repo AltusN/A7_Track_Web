@@ -14,6 +14,7 @@ def submit_location_data():
     if request.method == "POST":
         lat = request.form.get("lat")
         lng = request.form.get("lng")
+        data = (lat, lng)
     else:
         data = "error"
     return str(data)
