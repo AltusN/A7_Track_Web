@@ -10,7 +10,7 @@ app.config["DEBUG"] = True
 
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="altus",
-    password="password",
+    password="password123",
     hostname="altus.mysql.pythonanywhere-services.com",
     databasename="altus$comments",
 )
@@ -20,14 +20,21 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-comments = []
+class Comment(db.Model):
+    __tablename__ = "comments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.String(4096))
 
 @app.route("/", methods=("GET","POST"))
 def index():
     if request.method == "GET":
-        return render_template("main_page.html", comments=comments)
+        return render_template("main_page.html", comments=Comment.query.all())
 
-    #comments.append(request.form["contents"])
+    comment = Comment(content=request.form["contents"])
+    db.session.add(comment)
+    db.session.commit()
+
     return redirect(url_for("index"))
 
 
