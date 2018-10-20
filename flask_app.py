@@ -28,20 +28,19 @@ class Comment(db.Model):
 
 @app.route("/", methods=("GET","POST"))
 def index():
+    error = None
+
     if request.method == "GET":
         return render_template("main_page.html", comments=Comment.query.all())
 
-    #This is wrong... must figure out why it's posting
-    comment = None
+    comment = Comment(content=request.form["contents"])
 
-    try:
-        comment = Comment(content=request.form["contents"])
-    except Exception:
-        pass
-
-    if comment:
+    if comment is not None:
         db.session.add(comment)
         db.session.commit()
+    else:
+        error = "You must add some form of a comment"
+        return render_template("main_page.html", error = error)
 
     return redirect(url_for("index"))
 
