@@ -31,9 +31,27 @@ def index():
     if request.method == "GET":
         return render_template("main_page.html", comments=Comment.query.all())
 
-    comment = Comment(content=request.form["contents"])
-    db.session.add(comment)
-    db.session.commit()
+    #This is wrong... must figure out why it's posting
+    comment = None
+
+    try:
+        comment = Comment(content=request.form["contents"])
+    except Exception:
+        pass
+
+    if comment:
+        db.session.add(comment)
+        db.session.commit()
+
+    return redirect(url_for("index"))
+
+@app.route("/login", methods=("GET","POST"))
+def login():
+    if request.method == "GET":
+        return render_template("login_page.html", error=False)
+
+    if request.form["username"] != "admin" or request.form["password"] != "secret":
+        return render_template("login_page.html", error=True)
 
     return redirect(url_for("index"))
 
