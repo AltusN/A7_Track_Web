@@ -1,5 +1,5 @@
 
-# A very simple Flask Hello World app for you to get started with...
+from datetime import datetime
 
 from flask import Flask, request, render_template, url_for, redirect
 
@@ -58,7 +58,8 @@ def index():
     error = None
 
     if request.method == "GET":
-        return render_template("main_page.html", comments=Comment.query.all())
+        return render_template("main_page.html", comments=Comment.query.all(),
+            timestamp = datetime.now())
 
     if not current_user.is_authenticated:
         return redirect(url_for("index"))

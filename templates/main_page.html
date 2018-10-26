@@ -41,6 +41,8 @@
                 <div class="row">
                 {{ comment.content }}
             </div>
+            <div>
+            <small>Posted {{ timestamp.strftime("%A, %d %B %Y at %H:%M") }} by anonymous</small>
             {% endfor %}
 
             {% if current_user.is_authenticated %}
