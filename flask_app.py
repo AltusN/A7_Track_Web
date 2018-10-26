@@ -4,7 +4,7 @@
 from flask import Flask, request, render_template, url_for, redirect
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import login_user, LoginManager, UserMixin, logout_user, login_required
+from flask_login import login_user, LoginManager, UserMixin, logout_user, login_required, current_user
 
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -39,8 +39,8 @@ class User(UserMixin):
         return self.username
 
 all_users = {
-    "admin": User("admin", generate_password_hash("secret")),
-    "altus": User("altus", generate_password_hash("peanuts")),
+    "admin": User("admin", generate_password_hash("secret123")),
+    "altus": User("altus", generate_password_hash("peanuts123")),
 }
 
 @login_manager.user_loader
@@ -59,6 +59,9 @@ def index():
 
     if request.method == "GET":
         return render_template("main_page.html", comments=Comment.query.all())
+
+    if not current_user.is_authenticated:
+        return redirect(url_for("index"))
 
     comment = Comment(content=request.form["contents"])
 
