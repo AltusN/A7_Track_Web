@@ -51,6 +51,8 @@ class Comment(db.Model):
     __tablename__ = "comments"
 
     id = db.Column(db.Integer, primary_key=True)
+    commenter_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    commenter = db.relationship('User', foreign_keys=commenter_id)
     content = db.Column(db.String(4096))
     posted = db.Column(db.DateTime, default=datetime.now)
 
@@ -65,7 +67,7 @@ def index():
     if not current_user.is_authenticated:
         return redirect(url_for("index"))
 
-    comment = Comment(content=request.form["contents"])
+    comment = Comment(content=request.form["contents"], commenter=current_user)
 
     if comment is not None:
         db.session.add(comment)
