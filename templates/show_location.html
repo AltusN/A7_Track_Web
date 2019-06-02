@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang = "en">
+   <head>
+       <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+      <style>
+            table, th, td {
+                  border: 1px solid black;
+            }
+            #mapdiv {
+                  height: 400px;  /* The height is 400 pixels */
+                  width: 100%;  /* The width is the width of the web page */
+            }
+      </style>
+      <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script-->
+      <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+
+      <script>
+            var loc_data = {{ data|tojson }}
+      </script>
+   </head>
+   <body>
+       <nav class="navbar navbar-inverse">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Location Data for ...</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('logout') }}">Log out {{current_user.username}}</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('login') }}">Log in</a></li>
+                {% endif %}
+            </ul>
+          </div>
+        </nav>
+      <hr/>
+      {% if current_user.is_authenticated %}
+      <table>
+         <thead>
+            <tr>
+               <th>CCID</th>
+               <th>Lat</th>
+               <th>Lng</th>
+               <th>Date</th>
+            </tr>
+         </thead>
+
+         <tbody>
+            {% for location in locations %}
+               <tr>
+                  <td>{{ location.ccid }}</td>
+                  <td>{{ location.lat }}</td>
+                  <td>{{ location.lng }}</td>
+                  <td>{{ location.insert_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+               </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+      <hr/>
+      <div id="mapdiv"></div>
+
+            <script>
+                  map = new OpenLayers.Map("mapdiv");
+                  map.addLayer(new OpenLayers.Layer.OSM());
+
+                  var zoom=12;
+
+                  var markers = new OpenLayers.Layer.Markers( "Markers" );
+                  map.addLayer(markers);
+                  debugger;for(loc of loc_data.location_data){
+                        var lonLat = new OpenLayers.LonLat( parseFloat(loc.lng) , parseFloat(loc.lat) )
+                        .transform(
+                              new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                              map.getProjectionObject() // to Spherical Mercator Projection
+                        );
+                        markers.addMarker(new OpenLayers.Marker(lonLat));
+                  }
+                  map.setCenter (lonLat, zoom);
+            </script>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                    You must be logged in to view this
+                </div>
+        {% endif %}
+   </body>
+</html>
